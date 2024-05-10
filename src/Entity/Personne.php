@@ -6,14 +6,13 @@ use App\Repository\PersonneRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+
 
 /**
  * @ORM\Entity(repositoryClass=PersonneRepository::class)
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="type", type="string")
- * @ORM\DiscriminatorMap({"client" = "Client", "admin" = "Admin"})
  */
-class Personne
+class Personne implements UserInterface
 {
     /**
      * @ORM\Id
@@ -168,4 +167,32 @@ class Personne
 
         return $this;
     }
+    public function getUsername(): string
+    {
+        return $this->email; // Utilisez l'e-mail comme nom d'utilisateur
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->mdp; // Retourne le mot de passe
+    }
+
+    public function getRoles(): array
+    {
+        // Retourne un tableau de rôles
+        return ['ROLE_USER']; // Par exemple, tous les utilisateurs ont le rôle ROLE_USER
+    }
+    public function getSalt()
+    {
+        // Vous pouvez renvoyer null si vous ne prévoyez pas d'utiliser de sel pour le hachage du mot de passe
+        return null;
+    }
+
+    public function eraseCredentials()
+    {
+        // Vous pouvez implémenter cette méthode si vous devez effacer des informations sensibles de l'utilisateur
+        // Par exemple, vous pouvez effacer le mot de passe en mémoire après l'authentification
+        $this->mdp = null;
+    }
 }
+
